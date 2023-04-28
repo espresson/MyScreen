@@ -9,8 +9,10 @@ import android.app.Activity;
 import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
+import android.graphics.Canvas;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Looper;
 import android.text.TextUtils;
 import android.view.MotionEvent;
 import android.view.Surface;
@@ -20,6 +22,7 @@ import android.view.View;
 import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.alibaba.fastjson.JSON;
@@ -29,10 +32,13 @@ import com.example.screenclient.Utils.ScreenUtil;
 import com.example.screenclient.bean.OperationModel;
 import com.example.screenclient.bean.RemoteAssistanceBean;
 import com.example.screenclient.decode.Decode264;
+import com.example.screenclient.view.MySurfaceView;
 import com.example.screenclient.websocket.OnSocketMessage;
 import com.example.screenclient.websocket.SocketServer;
 
 import java.util.Date;
+import java.util.Timer;
+import java.util.TimerTask;
 
 public class ScreenClientActivity extends Activity {
     private final String TAG = ScreenClientActivity.class.getSimpleName();
@@ -41,6 +47,8 @@ public class ScreenClientActivity extends Activity {
     private SurfaceView mSurfaceView;
 
     private ImageView ivScreen;
+
+    private TextView textView;
 
     private Surface mSurface;
 
@@ -54,6 +62,11 @@ public class ScreenClientActivity extends Activity {
 
     private long dateStart, dateEnd, during;
 
+    private Float progress = 0f;
+    private Handler handler =new  Handler(Looper.getMainLooper());
+
+    private Timer timer;
+    private TimerTask timerTask;
 
     @SuppressLint("MissingInflatedId")
     @Override
@@ -61,8 +74,9 @@ public class ScreenClientActivity extends Activity {
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,WindowManager.LayoutParams.FLAG_FULLSCREEN);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_screen_client);
-        mSurfaceView = findViewById(R.id.surfaceView);
+        mSurfaceView =findViewById(R.id.surfaceView);
         ivScreen = findViewById(R.id.image);
+        textView= findViewById(R.id.textview);
         ivScreen.setOnTouchListener(onTouchListener);
         mSurfaceView.getHolder().addCallback(new SurfaceHolder.Callback() {
             @Override
@@ -82,12 +96,28 @@ public class ScreenClientActivity extends Activity {
 
             }
         });
+
+//        timer = new Timer();
+//        timerTask = new TimerTask() {
+//            @Override
+//            public void run() {
+//                long lastRenderTime = mSurfaceView.getLastRenderTime();
+//                runOnUiThread(() -> textView.setText("" + lastRenderTime + "ms"));
+//            }
+//        };
+//        timer.schedule(timerTask, 0, 1000);
+
+
         new Handler().postDelayed(this::resetSurfaceViewSize,500);
 
 
         switchScreen();
     }
 
+
+    private void drawFrame(Canvas canvas) {
+        // 绘制逻辑
+    }
 
     private void resetSurfaceViewSize(){
         if(screenWidth == 0) return;
@@ -334,6 +364,8 @@ public class ScreenClientActivity extends Activity {
     protected void onDestroy() {
         socketServer.closeConnect();
         super.onDestroy();
+        timer.cancel();
+        timerTask.cancel();
     }
 
 }

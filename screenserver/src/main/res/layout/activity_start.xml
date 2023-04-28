@@ -7,6 +7,7 @@
     tools:ignore="MissingDefaultResource">
 
     <Button
+        android:visibility="gone"
         android:id="@+id/btn_exit"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -16,10 +17,12 @@
     <Button
         android:id="@+id/btn1"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentEnd="true"
+        android:layout_height="50dp"
+
         android:onClick="onClick"
-        android:text="发送测试消息"/>
+        android:background="@null"
+        android:textColor="@color/white"
+        android:text="测试数据"/>
 
     <Button
         android:id="@+id/btn2"

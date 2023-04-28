@@ -5,3 +5,9 @@ plugins {
     id 'com.android.library' version '7.4.1' apply false
     id 'org.jetbrains.kotlin.android' version '1.6.20' apply false
 }
+
+
+//执行清除project的output文件的任务
+task clean(type: Delete) {
+    delete rootProject.buildDir
+}
