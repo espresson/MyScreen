@@ -1,30 +1,40 @@
 package com.example.screenclient;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.os.Handler;
+import android.text.TextUtils;
+import android.view.MotionEvent;
 import android.view.Surface;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
+import android.view.View;
 import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
+import android.widget.Toast;
 
 import com.alibaba.fastjson.JSON;
 import com.example.screenclient.Utils.ImageUtil;
+import com.example.screenclient.Utils.LogUtils;
 import com.example.screenclient.Utils.ScreenUtil;
+import com.example.screenclient.bean.OperationModel;
 import com.example.screenclient.bean.RemoteAssistanceBean;
 import com.example.screenclient.decode.Decode264;
 import com.example.screenclient.websocket.OnSocketMessage;
 import com.example.screenclient.websocket.SocketServer;
 
-public class ScreenClientActivity extends AppCompatActivity {
+import java.util.Date;
+
+public class ScreenClientActivity extends Activity {
     private final String TAG = ScreenClientActivity.class.getSimpleName();
 
     private RemoteAssistanceBean remoteAssistanceBean = new RemoteAssistanceBean();
@@ -40,6 +50,11 @@ public class ScreenClientActivity extends AppCompatActivity {
 
     private int screenWidth,screenHeight;
 
+    private OperationModel operationModel;
+
+    private long dateStart, dateEnd, during;
+
+
     @SuppressLint("MissingInflatedId")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,6 +63,7 @@ public class ScreenClientActivity extends AppCompatActivity {
         setContentView(R.layout.activity_screen_client);
         mSurfaceView = findViewById(R.id.surfaceView);
         ivScreen = findViewById(R.id.image);
+        ivScreen.setOnTouchListener(onTouchListener);
         mSurfaceView.getHolder().addCallback(new SurfaceHolder.Callback() {
             @Override
             public void surfaceCreated(@NonNull SurfaceHolder surfaceHolder) {
@@ -68,6 +84,8 @@ public class ScreenClientActivity extends AppCompatActivity {
         });
         new Handler().postDelayed(this::resetSurfaceViewSize,500);
 
+
+        switchScreen();
     }
 
 
@@ -130,6 +148,144 @@ public class ScreenClientActivity extends AppCompatActivity {
             }
         }
     };
+
+
+    boolean isEffective = true; //此次手势是否有效的
+    View.OnTouchListener onTouchListener = new View.OnTouchListener() {
+        @Override
+        public boolean onTouch(View view, MotionEvent motionEvent) {
+            Date date = new Date();
+            if (view.getId() == R.id.image) {
+                switch (motionEvent.getAction()) {
+                    case MotionEvent.ACTION_DOWN:
+                        LogUtils.d(TAG, "onTouchEvent: ACTION_DOWN = " + motionEvent.getAction());
+                        if (operationModel == null) {
+                            operationModel = new OperationModel();
+                        }
+                        operationModel.clear();
+                        Float[] point = getScreenPoint(motionEvent.getX(), motionEvent.getY());
+                        if(point != null){
+                            isEffective = true;
+                            dateStart = date.getTime();
+                            operationModel.setDownPoint(point);
+                        }else {
+                            isEffective = false;
+                            operationModel.setDownPoint(null);
+                        }
+                        break;
+                    case MotionEvent.ACTION_MOVE:
+                        LogUtils.d(TAG, "onTouchEvent: ACTION_MOVE = " + motionEvent.getAction());
+                        if(!isEffective) break;
+                        point = getScreenPoint(motionEvent.getX(), motionEvent.getY());
+                        if(point != null){
+                            operationModel.addLocationModel(point);
+                        }
+                        break;
+                    case MotionEvent.ACTION_UP:
+                        LogUtils.d(TAG, "onTouchEvent: ACTION_UP = " + motionEvent.getAction());
+                        if(!isEffective) break;
+                        point = getScreenPoint(motionEvent.getX(), motionEvent.getY());
+                        if(point != null){
+                            dateEnd = date.getTime();
+                            during = dateEnd - dateStart;
+                            operationModel.addLocationModel(point);
+                            operationModel.setDelayTime(0);
+                            operationModel.setDurationTime((int) during);
+                            remoteAssistanceBean.setCode(6);
+                            remoteAssistanceBean.setData(JSON.toJSONString(operationModel));
+                            sendMessage("RemoteAssistance"+JSON.toJSONString(remoteAssistanceBean));
+                            LogUtils.d(TAG, "onTouch: during:" + during);
+//                            if(during <= 100){
+//                                RemoteAssistanceBean bean = new RemoteAssistanceBean(5, JSON.toJSONString(operationModel));
+//                                sendMessage(JSON.toJSONString(bean));
+//                            }else{
+//                                if(operationModel.getPointList().size() > 3){
+//                                    RemoteAssistanceBean bean = new RemoteAssistanceBean(6, JSON.toJSONString(operationModel));
+//                                    sendMessage(JSON.toJSONString(bean));
+//                                }
+//                            }
+                        }
+                        break;
+                }
+            }
+            return false;
+        }
+    };
+
+
+    private void sendAction(int during){
+        operationModel.setDurationTime(during);
+        remoteAssistanceBean.setCode(6);
+        remoteAssistanceBean.setData(JSON.toJSONString(operationModel));
+        String str = JSON.toJSONString(remoteAssistanceBean);
+        operationModel.setDownPoint(operationModel.getPointList().get(operationModel.getPointList().size() - 1));
+        operationModel.clear();
+        sendMessage("RemoteAssistance"+str);
+    }
+
+    private void sendMessage(String msg){
+        if (!socketServer.isConnecting()) {
+            Toast.makeText(getApplicationContext(), "未连接,请先连接", Toast.LENGTH_SHORT).show();
+        } else {
+            if (TextUtils.isEmpty(msg.trim())) {
+                return;
+            }
+            socketServer.sendMsg(msg);
+        }
+    }
+
+    /**
+     * 获取远程屏幕的实际坐标，
+     * 显示方式 ： scaleType="fitCenter"
+     */
+    private Float[] getScreenPoint(float x, float y){
+        LogUtils.d(TAG, "onTouchEvent: getX:" + x);
+        LogUtils.d(TAG, "onTouchEvent: getY:" + y);
+        if(screenWidth == 0) return null;
+        float screenX;
+        float screenY;
+        int imgWidth = ivScreen.getWidth();
+        int imgHeight = ivScreen.getHeight();
+        LogUtils.d(TAG, "\n\n");
+        LogUtils.d(TAG, String.format("test----------------------: 远程屏幕，w = %s，h = %s",screenWidth,screenHeight));
+        LogUtils.d(TAG, String.format("test----------------------: imageView，w = %s，h = %s",imgWidth,imgHeight));
+        if(1.0f * imgWidth/imgHeight > 1.0f * screenWidth/screenHeight){
+            //imgWidth两边会多出空隙
+            LogUtils.d(TAG, "test----------------------: 两边多出空隙");
+            int sw = imgHeight * screenWidth / screenHeight; //客户端显示远程屏幕的宽度
+            LogUtils.d(TAG, String.format("test----------------------: 远程屏幕在图片上宽高 ，w = %s, h = %s" , sw, imgHeight));
+            float sx = x - ((imgWidth - sw) >> 1); //客户端显示远程屏幕的宽度上的x坐标
+            if(sx < 0 || sx > sw) return null; //点击了远程屏幕的外面
+            float scale = 1.0f * screenWidth / sw;
+            screenX = sx * scale;
+            screenY = y * scale;
+            LogUtils.d(TAG, "test----------------------: 远程屏幕宽高/实际显示图片上的宽高 scale = " + scale);
+            LogUtils.d(TAG, String.format("test----------------------: 点击事件在图片上的坐标，x = %s，y = %s",sx,y));
+        }else {
+            LogUtils.d(TAG, "test----------------------: 上下多出空隙");
+            int sh = imgWidth * screenHeight / screenWidth;
+            LogUtils.d(TAG, String.format("test----------------------: 远程屏幕在图片上宽高 ，w = %s, h = %s" , imgWidth, sh));
+            float sy = y - ((imgHeight - sh) >> 1);
+            if(sy < 0 || sy > sh) return null; //点击了远程屏幕的外面
+            float scale = 1.0f * screenWidth / imgWidth;
+            screenX = x * scale;
+            screenY = sy * scale;
+            LogUtils.d(TAG, "test----------------------: 远程屏幕宽高/实际显示图片上宽高 scale = " + scale);
+            LogUtils.d(TAG, String.format("test----------------------: 点击事件在图片上的坐标，x = %s，y = %s",x,sy));
+        }
+        LogUtils.d(TAG, String.format("test----------------------: 转换成实际屏幕上的坐标，x = %s，y = %s",screenX,screenY));
+        return new Float[]{Math.round(screenX * 100) / 100.0f, Math.round(screenY * 100) / 100.0f};
+    }
+
+    private void showConfirmDialog(String msg){
+        if(isFinishing()) return;
+        AlertDialog.Builder dialog = new AlertDialog.Builder(this);
+        dialog.setMessage(msg)
+                .setPositiveButton("确定",null)
+                .show();
+    }
+
+
     /**
      * 横竖屏切换
      */

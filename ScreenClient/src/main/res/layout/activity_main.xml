@@ -1,36 +1,58 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    tools:context=".MainActivity">
+    android:layout_height="match_parent">
+
+    <ImageView
+        android:id="@+id/image"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:scaleType="fitCenter"/>
 
     <EditText
         android:id="@+id/et_input"
         android:layout_width="150dp"
         android:layout_height="wrap_content"
+        android:layout_above="@+id/btn_connect"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="236dp"
+        android:layout_marginBottom="30dp"
         android:gravity="center"
-        android:hint="请输入服务器ip地址"
-        android:text="192.168.1.13"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.498"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        android:text="192.168.8.106"
+        android:hint="请输入服务器ip地址"/>
+
+    <Button
+        android:id="@+id/btn_ips"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:layout_toRightOf="@+id/et_input"
+        android:layout_alignBottom="@+id/et_input"
+        android:visibility="gone"
+        android:layout_marginLeft="30dp"
+        android:onClick="onClick"
+        android:text="切换IP" />
 
     <Button
         android:id="@+id/btn_connect"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerInParent="true"
-        android:layout_marginTop="52dp"
-        android:text="连接"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.498"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/et_input" />
+        android:onClick="onClick"
+        android:text="连接" />
 
+    <ImageView
+        android:visibility="gone"
+        android:id="@+id/iv_refresh"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_marginStart="10dp"
+        android:layout_marginTop="10dp"
+        android:layout_marginEnd="10dp"
+        android:layout_marginBottom="10dp"
+        android:onClick="onClick"
+        android:src="@mipmap/refresh" />
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+</RelativeLayout>

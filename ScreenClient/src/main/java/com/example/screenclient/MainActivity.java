@@ -3,6 +3,7 @@ package com.example.screenclient;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.widget.Button;
@@ -12,7 +13,7 @@ import android.widget.Toast;
 import com.example.screenclient.Utils.SPUtils;
 
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends Activity {
     private final static String TAG = MainActivity.class.getSimpleName();
 
     private EditText editText;
@@ -22,6 +23,8 @@ public class MainActivity extends AppCompatActivity {
     @SuppressLint("MissingInflatedId")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        //全屏显示，去掉title
+        getWindow().setFlags(android.view.WindowManager.LayoutParams.FLAG_FULLSCREEN, android.view.WindowManager.LayoutParams.FLAG_FULLSCREEN);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         //避免从桌面启动程序后，会重新实例化入口类的activity
