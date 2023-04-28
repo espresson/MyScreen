@@ -297,6 +297,20 @@ public class ScreenClientActivity extends Activity {
         }
     }
 
+    //android实现左右滑动两次返回
+
+ private long firstTime = 0;
+    @Override
+    public void onBackPressed() {
+        if(firstTime+2000> System.currentTimeMillis()) {
+            super.onBackPressed();
+        }else{
+            Toast.makeText(this,"再按一次退出",Toast.LENGTH_SHORT).show();
+        }
+        firstTime = System.currentTimeMillis();
+
+    }
+
     @Override
     public void onConfigurationChanged(@NonNull Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
