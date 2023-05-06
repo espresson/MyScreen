@@ -11,6 +11,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
+import android.widget.Toast;
 
 import androidx.annotation.RequiresApi;
 
@@ -22,8 +23,6 @@ import com.example.screenserver.bean.OperationModel;
 import java.util.Date;
 
 /**
- * Author: HuangYuGuang
- * Date: 2022/12/3
  */
 public class FloatWindowManager {
     private final String TAG = FloatWindowManager.class.getSimpleName();
@@ -59,7 +58,7 @@ public class FloatWindowManager {
             return;
         }
         if (!Settings.canDrawOverlays(Application.getmApp())) {
-            ToastUtils.show("需要开启悬浮窗权限！");
+            Toast.makeText(Application.getmApp(),"需要开启悬浮窗权限！",Toast.LENGTH_SHORT).show();
             Intent intent = new Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION);
             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             Application.getmApp().startActivity(intent);

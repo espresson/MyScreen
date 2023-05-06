@@ -2,8 +2,8 @@ package com.example.screenserver;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.app.AppCompatActivity;
 
+import android.app.Activity;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.Configuration;
@@ -22,7 +22,7 @@ import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
-public class StartActivity extends AppCompatActivity {
+public class StartActivity extends Activity {
     private final String TAG = "MainActivity";
 
     private TextView tvMsg,tv_status;
@@ -50,11 +50,8 @@ public class StartActivity extends AppCompatActivity {
         }
     }
 
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        EventBus.getDefault().unregister(this);
-    }
+
+
 
     @Override
     public void onConfigurationChanged(@NonNull Configuration newConfig) {
@@ -84,6 +81,10 @@ public class StartActivity extends AppCompatActivity {
                 //sendMsg("测试消息");
                 break;
             case R.id.btn2:
+
+                break;
+            case R.id.btn_connect:
+
                 break;
         }
     }
@@ -109,5 +110,12 @@ public class StartActivity extends AppCompatActivity {
                 .setPositiveButton("确定",listener)
                 .setNegativeButton("取消",null)
                 .show();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+
+        EventBus.getDefault().unregister(this);
     }
 }

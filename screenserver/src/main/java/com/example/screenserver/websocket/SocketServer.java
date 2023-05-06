@@ -1,6 +1,7 @@
 package com.example.screenserver.websocket;
 
 import android.os.Handler;
+import android.widget.Toast;
 
 import com.alibaba.fastjson.JSON;
 import com.example.screenserver.Application;
@@ -8,7 +9,6 @@ import com.example.screenserver.bean.RemoteAssistanceBean;
 import com.example.screenserver.event.NettyInitEvent;
 import com.example.screenserver.utils.LogUtils;
 import com.example.screenserver.utils.ScreenUtil;
-import com.example.screenserver.utils.ToastUtils;
 
 
 import org.greenrobot.eventbus.EventBus;
@@ -52,7 +52,7 @@ public class SocketServer extends WebSocketServer {
     private Handler mHandler = new Handler(msg -> {
         switch (msg.what){
             case 1:
-                ToastUtils.show((String) msg.obj);
+                Toast.makeText(Application.getmApp(),(String) msg.obj,Toast.LENGTH_SHORT).show();
                 break;
         }
         return false;
@@ -78,6 +78,7 @@ public class SocketServer extends WebSocketServer {
             if(param.length < 2){
                 continue;
             }
+
             if("type".equals(param[0])){//远程协助的类型
                 if("Accessibility".equals(param[1])){
                     close("Accessibility"); //把其他远程协助挤下线
@@ -88,14 +89,18 @@ public class SocketServer extends WebSocketServer {
                 clientBean.setType(param[1]);
                 webSocketClients.put(host,clientBean);
             }
+
         }
     }
 
     @Override
     public void onClose(WebSocket conn, int code, String reason, boolean remote) {
-        String msg = String.format("onClose() %s连接断开, remote:%s, code:%s, reason:%s",getRemoteSocketAddress(conn).getHostName(),remote,code,reason);
-        setSocketStatus(msg);
-        webSocketClients.remove(getRemoteSocketAddress(conn).getHostName());
+        if(getRemoteSocketAddress(conn)!=null){
+            String msg = String.format("onClose() %s连接断开, remote:%s, code:%s, reason:%s",getRemoteSocketAddress(conn).getHostName(),remote,code,reason);
+            setSocketStatus(msg);
+            webSocketClients.remove(getRemoteSocketAddress(conn).getHostName());
+        }
+
     }
 
     @Override

@@ -4,6 +4,7 @@ import android.media.projection.MediaProjection;
 
 
 import com.example.screenserver.live.CodecH264;
+import com.example.screenserver.live.CodecH265;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -16,7 +17,7 @@ public class SocketService {
 
     private CodecH264 mCodecH264;
 
-    private static SocketService instance;
+    private static volatile SocketService instance;
 
     public static  SocketService getInstance(){
         if(instance == null){
@@ -31,6 +32,8 @@ public class SocketService {
 
     public SocketService(){
         webSocketServer = new SocketServer(new InetSocketAddress(port));
+
+        //webSocketServer.close(); //把其他远程协助挤下线
     }
 
     public void startLive(MediaProjection mediaProjection){
@@ -73,4 +76,5 @@ public class SocketService {
     public String getSocketStatus() {
         return webSocketServer.getSocketStatus();
     }
+
 }

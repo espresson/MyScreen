@@ -4,13 +4,6 @@ import static android.util.Config.DEBUG;
 
 import android.util.Log;
 
-
-
-
-/**
- * Author: huangyuguang
- * Date: 2022/5/5
- */
 public class LogUtils {
     private static final String TAG = "LogUtils";
     private static int max_log_str_length = 3000;

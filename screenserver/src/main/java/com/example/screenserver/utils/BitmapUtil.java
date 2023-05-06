@@ -6,10 +6,7 @@ import android.util.Base64;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
-/**
- * Author: HuangYuGuang
- * Date: 2022/12/2
- */
+
 public class BitmapUtil {
 
     /**

@@ -14,6 +14,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.Surface;
 import android.view.SurfaceHolder;
@@ -26,12 +27,14 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.parser.Feature;
 import com.example.screenclient.Utils.ImageUtil;
 import com.example.screenclient.Utils.LogUtils;
 import com.example.screenclient.Utils.ScreenUtil;
 import com.example.screenclient.bean.OperationModel;
 import com.example.screenclient.bean.RemoteAssistanceBean;
 import com.example.screenclient.decode.Decode264;
+import com.example.screenclient.decode.Decode265;
 import com.example.screenclient.view.MySurfaceView;
 import com.example.screenclient.websocket.OnSocketMessage;
 import com.example.screenclient.websocket.SocketServer;
@@ -65,8 +68,7 @@ public class ScreenClientActivity extends Activity {
     private Float progress = 0f;
     private Handler handler =new  Handler(Looper.getMainLooper());
 
-    private Timer timer;
-    private TimerTask timerTask;
+
 
     @SuppressLint("MissingInflatedId")
     @Override
@@ -81,19 +83,22 @@ public class ScreenClientActivity extends Activity {
         mSurfaceView.getHolder().addCallback(new SurfaceHolder.Callback() {
             @Override
             public void surfaceCreated(@NonNull SurfaceHolder surfaceHolder) {
+                Log.e("zzzzz","surfaceCreated");
                 mSurface = surfaceHolder.getSurface();
                 mDecode264 = new Decode264(mSurface);
-               initSocket();
+                initSocket();
+
             }
 
             @Override
             public void surfaceChanged(@NonNull SurfaceHolder surfaceHolder, int i, int i1, int i2) {
+                Log.e("zzzzz","surfaceChanged");
 
             }
 
             @Override
             public void surfaceDestroyed(@NonNull SurfaceHolder surfaceHolder) {
-
+                Log.e("zzzzz","surfaceDestroyed");
             }
         });
 
@@ -149,7 +154,7 @@ public class ScreenClientActivity extends Activity {
         public void onMessage(String message) {
             runOnUiThread(() -> {
                 try {
-                    RemoteAssistanceBean bean = JSON.parseObject(message,RemoteAssistanceBean.class);
+                    RemoteAssistanceBean bean = JSON.parseObject(message,RemoteAssistanceBean.class, Feature.DisableSpecialKeyDetect);
                     switch (bean.getCode()){
                         case 1:
                             Bitmap bitmap = ImageUtil.base64ToBitmap(bean.getData());
@@ -165,6 +170,7 @@ public class ScreenClientActivity extends Activity {
                             screenHeight = Integer.parseInt(ss[1]);
                             break;
                     }
+
                 }catch (Exception e){
                     e.printStackTrace();
                 }
@@ -307,7 +313,8 @@ public class ScreenClientActivity extends Activity {
         return new Float[]{Math.round(screenX * 100) / 100.0f, Math.round(screenY * 100) / 100.0f};
     }
 
-    private void showConfirmDialog(String msg){
+    private void
+    showConfirmDialog(String msg){
         if(isFinishing()) return;
         AlertDialog.Builder dialog = new AlertDialog.Builder(this);
         dialog.setMessage(msg)
@@ -364,8 +371,8 @@ public class ScreenClientActivity extends Activity {
     protected void onDestroy() {
         socketServer.closeConnect();
         super.onDestroy();
-        timer.cancel();
-        timerTask.cancel();
+//        timer.cancel();
+//        timerTask.cancel();
     }
 
 }

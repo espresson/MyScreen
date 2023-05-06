@@ -20,6 +20,7 @@ import android.view.accessibility.AccessibilityNodeInfo;
 import androidx.annotation.RequiresApi;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.parser.Feature;
 import com.example.accessibilitytest.utils.AccessibilityUtil;
 import com.example.screenserver.MainActivity;
 import com.example.screenserver.R;
@@ -196,7 +197,7 @@ public class DYAccessibilityService extends AccessibilityService {
             EventBus.getDefault().post(message);
             try {
                 if(message.startsWith("RemoteAssistance")){ //远程协助消息
-                    RemoteAssistanceBean bean = JSON.parseObject(message.substring(message.indexOf("{")),RemoteAssistanceBean.class);
+                    RemoteAssistanceBean bean = JSON.parseObject(message.substring(message.indexOf("{")),RemoteAssistanceBean.class, Feature.DisableSpecialKeyDetect);
                     if(bean.getCode() == 2){
                         actionBack();
                     }else if(bean.getCode() == 3){
@@ -204,9 +205,11 @@ public class DYAccessibilityService extends AccessibilityService {
                     }else if(bean.getCode() == 7){
                        // Const.smdtManager.smdtReboot("reboot");
                     }else {
-                        OperationModel operationModel = JSON.parseObject(bean.getData(),OperationModel.class);
+                        OperationModel operationModel = JSON.parseObject(bean.getData(),OperationModel.class,Feature.DisableSpecialKeyDetect);
                         doGestureToScreen(operationModel);
+
                     }
+
                 }
             }catch (Exception e){
                 e.printStackTrace();

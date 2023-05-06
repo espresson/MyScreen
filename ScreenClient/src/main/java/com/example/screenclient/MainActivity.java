@@ -43,7 +43,7 @@ public class MainActivity extends Activity {
         editText = findViewById(R.id.et_input);
         button = findViewById(R.id.btn_connect);
 
-        String saveIP = SPUtils.getString(this,"serverIP","192.168.1.13");
+        String saveIP = SPUtils.getString(this,"serverIP","192.168.1.133");
         editText.setText(saveIP);
 
         button.setOnClickListener(v -> {

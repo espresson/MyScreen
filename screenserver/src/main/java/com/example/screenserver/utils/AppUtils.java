@@ -39,8 +39,6 @@ import javax.security.auth.x500.X500Principal;
 
 /**
  * FileName: AppUtils
- * Author: huangyuguang
- * Date: 2022/5/11
  * Description: app常用工具类
  */
 public class AppUtils {

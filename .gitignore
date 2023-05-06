@@ -13,3 +13,9 @@
 .externalNativeBuild
 .cxx
 local.properties
+
+-keep class com.squareup.leakcanary.** { *; }
+-dontwarn com.squareup.leakcanary.**
+-keepattributes *Annotation*
+
+

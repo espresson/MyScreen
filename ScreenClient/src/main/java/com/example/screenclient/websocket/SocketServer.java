@@ -208,7 +208,7 @@ public class SocketServer {
         public void onMessage(ByteBuffer bytes) {
             byte[] buf = new byte[bytes.remaining()];
             bytes.get(buf);
-            Log.d(TAG,"<-- " + Arrays.toString(buf));
+            Log.e(TAG,"<-- " + Arrays.toString(buf));//////////////////////////////////////////////////
             if(onSocketMessage != null){
                 onSocketMessage.onMessage(buf);
             }

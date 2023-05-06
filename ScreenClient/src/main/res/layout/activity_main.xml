@@ -4,6 +4,10 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text=" 投屏客户端"/>
 
     <ImageView
         android:id="@+id/image"
@@ -19,7 +23,7 @@
         android:layout_centerHorizontal="true"
         android:layout_marginBottom="30dp"
         android:gravity="center"
-        android:text="192.168.8.106"
+        android:text="192.168.1.133"
         android:hint="请输入服务器ip地址"/>
 
     <Button

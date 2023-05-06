@@ -19,11 +19,6 @@ import com.example.screenserver.R;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 
-
-/**
- * Author: huangyuguang
- * Date: 2022/5/5
- */
 @SuppressWarnings("all")
 public class ScreenUtil {
     private static int screenWidth = 0;

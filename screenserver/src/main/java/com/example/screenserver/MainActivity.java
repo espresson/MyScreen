@@ -3,7 +3,6 @@ package com.example.screenserver;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.app.AppCompatActivity;
 
 import android.app.Activity;
 import android.content.DialogInterface;
@@ -19,7 +18,7 @@ import com.example.accessibilitytest.utils.AccessibilityUtil;
 import com.example.screenserver.service.DYAccessibilityService;
 import com.example.screenserver.service.PushService;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends Activity {
     private final String TAG = "MainActivity";
     public static final int REQUEST_CODE = 1;
 
@@ -31,7 +30,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+       // setContentView(R.layout.activity_main);
         // 避免从桌面启动程序后，会重新实例化入口类的activity
         if (!this.isTaskRoot()) { // 如果不是栈内第一个activity则直接关闭
             Intent intent = getIntent();
@@ -44,6 +43,7 @@ public class MainActivity extends AppCompatActivity {
             }
         }
 
+        //自动获取无障碍服务
         mProjectionManager = (MediaProjectionManager) getSystemService(MEDIA_PROJECTION_SERVICE);
         startService(new Intent(this, DYAccessibilityService.class));
     }
@@ -94,5 +94,12 @@ public class MainActivity extends AppCompatActivity {
                 .setPositiveButton("确定",listener)
                 .setNegativeButton("取消",null)
                 .show();
+    }
+
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+
     }
 }
